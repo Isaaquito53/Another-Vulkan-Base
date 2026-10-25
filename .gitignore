@@ -1,0 +1,19 @@
+# -INCLUE-
+VulkanCore/include/GLFW/**
+VulkanCore/src/vendor/glm/**
+VulkanCore/src/vendor/imgui/**
+VulkanCore/src/vendor/std_image/**
+VulkanCore/src/vendor/tiny_object_loader/**
+
+# -LIB-
+VulkanCore/lib/**
+
+# -RES-
+NoVulkan/res/models/**
+NoVulkan/res/textures/**
+
+# -VS-
+.vs/
+bin-int/
+imgui.ini
+AnotherVulkanBase.*
