@@ -123,8 +123,8 @@ void Camera::Look()
 		m_lastLook.x = xpos;
 		m_lastLook.y = ypos;
 
-		xoffset *= m_sensitivity / 10;
-		yoffset *= m_sensitivity / 10;
+		xoffset *= m_sensitivity / 5;
+		yoffset *= m_sensitivity / 5;
 
 		m_yaw += xoffset;
 		m_pitch += yoffset;
@@ -256,8 +256,31 @@ void Camera::UpdateCam(float delta)
 		}
 		else
 		{
+			if (m_camUp != glm::vec3(0.0f, 1.0f, 0.0f)) {
+				m_camUp = glm::vec3(0.0f, 1.0f, 0.0f);
+				m_camFront = glm::normalize(-m_camPos);
+				// Recover pitch and yaw:
+				/*
+				PITCH: we can recover it from the y coord of m_camFront
+				YAW: we divide the circumference in 3 parts.
+					- The first half of the circle yawSin (0,90) and yawCos (0,180) -> We use yawCos to recover YAW.
+					- The second part is a quarter, where yawSin(-90,0) and yawCos(0,90) -> We use yawSin to recover YAW.
+					- The third part is another quarter, where yawSin(-90,0) and yawCos(90,180) -> We use -yawCos to recover YAW.
+				*/
+				m_pitch = glm::degrees(asin(m_camFront.y));
+				float yawSinRes = m_camFront.z / cos(glm::radians(m_pitch));
+				float yawCosRes = m_camFront.x / cos(glm::radians(m_pitch));
+				float yawSin = glm::degrees(asin(yawSinRes));
+				float yawCos = glm::degrees(acos(yawCosRes));
+				if (yawSin >= 0)
+					m_yaw = yawCos;
+				else if (yawCos <= 90)
+					m_yaw = yawSin;
+				else
+					m_yaw = -yawCos;
+
+			}
 			SelectSpeed();
-			m_camUp = glm::vec3(0.0f, 1.0f, 0.0f);
 			Walk();
 			if (m_SurvivalMode)
 				Jump();

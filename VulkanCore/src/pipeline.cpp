@@ -1117,7 +1117,8 @@ namespace Engine {
 
 			ImGui::Checkbox("SphericalView", &m_scene.GetCam()->m_spherical);
 			ImGui::Text("Cam position: x: %.3f, y: %.3f, z: %.3f", m_scene.GetCam()->m_camPos.x, m_scene.GetCam()->m_camPos.y, m_scene.GetCam()->m_camPos.z);
-			
+			ImGui::Text("Cam direction: x: %.3f, y: %.3f, z: %.3f", m_scene.GetCam()->m_camDirection.x, m_scene.GetCam()->m_camDirection.y, m_scene.GetCam()->m_camDirection.z);
+
 			ImGui::Separator();
 
 			ImGui::Text("FrameRate: %.3f", engine_time - m_time);
@@ -1307,16 +1308,16 @@ namespace Engine {
 				prevAngL = parent.rotation.z;
 				prevAngR = parent.rotation.z;
 				posL = posL + glm::vec2(sin(prevAngL), cos(prevAngL)) * parent.scale.y;
-				posL = posL + glm::vec2(sin(angL+ prevAngL), cos(angL+ prevAngL)) * (iSize / maxDepth * 5);
+				posL = posL + glm::vec2(sin(angL + prevAngL), cos(angL + prevAngL)) * (iSize / maxDepth * 5);
 
 				posR = posR + glm::vec2(sin(prevAngR), cos(prevAngR)) * parent.scale.y;
-				posR = posR + glm::vec2(sin(angR+ prevAngR), cos(angR+ prevAngR)) * (iSize / maxDepth * 5);
+				posR = posR + glm::vec2(sin(angR + prevAngR), cos(angR + prevAngR)) * (iSize / maxDepth * 5);
 
 				Instance instR = { {1.0,1.0,1.0}, {posR.x,posR.y,0.0}, {iSize / maxDepth,iSize / maxDepth * 5,iSize / maxDepth}, {0.0,0.0,angR + prevAngR} };
 				parts.push_back(instR);
 				RecursiveTree(parts, maxDepth, depth + 1, instR);
 			}
-			Instance instL = { {1.0,1.0,1.0}, {posL.x,posL.y,0.0}, {iSize / maxDepth,iSize / maxDepth*5,iSize / maxDepth}, {0.0,0.0,angL+ prevAngL}};
+			Instance instL = { {1.0,1.0,1.0}, {posL.x,posL.y,0.0}, {iSize / maxDepth,iSize / maxDepth * 5,iSize / maxDepth}, {0.0,0.0,angL + prevAngL} };
 			parts.push_back(instL);
 			return RecursiveTree(parts, maxDepth, depth + 1, instL);
 		}
