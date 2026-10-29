@@ -12,12 +12,12 @@
 #include <string>
 #include <vector>
 
-#include "Scene.h"
+#include "SceneTranslator.h"
+#include "buffer.h"
 
 namespace Engine {
 
 	const int MAX_FRAMES_IN_FLIGHT = 2;
-	const int MAX_INSTANCES = 1024;
 
 	class EnginePipeline {
 	public:
@@ -45,9 +45,6 @@ namespace Engine {
 
 		void updateUniformBuffer(uint32_t currentImage, VkExtent2D swapChainExtent, float time, double xpos, double ypos);
 
-		VkCommandBuffer beginSingleTimeCommands(VkDevice device);
-		void endSingleTimeCommands(VkDevice device, VkQueue graphicsQueue, VkCommandBuffer commandBuffer);
-
 		const VkFence* GetFence(unsigned int fenceIndex) { return &inFlightFences[fenceIndex]; }
 		VkSemaphore GetImageAvailableSemaphore(unsigned int semIndex) { return imageAvailableSemaphores[semIndex]; }
 		VkSemaphore GetRenderFinishedSemaphore(unsigned int semIndex) { return renderFinishedSemaphores[semIndex]; }
@@ -58,9 +55,10 @@ namespace Engine {
 
 		void createGraphicsPipeline(const std::string& vertFilepath, const std::string& fragFilepath, VkDevice device);
 
-		void updateCam(float time);
-		void selectInstance(VkDevice device, int w, int h);
-		void showInstanceMenu(VkDevice device, unsigned int cmdBufferIndex);
+		VkCommandPool GetCommandPool() { return commandPool; }
+
+		UniformBufferObject GetUBO() { return ubo; }
+		SceneTranslator GetSceneTranslator() { return m_sceneTranslator; }
 
 	private:
 		static std::vector<char> readFile(const std::string& filepath);
@@ -69,18 +67,6 @@ namespace Engine {
 		void createRenderPass(VkFormat swapChainImageFormat, VkDevice device, VkPhysicalDevice physicalDevice);
 		void createCommandPool(VkDevice device, QueueFamilyIndices queueIndices);
 		void createCommandBuffers(VkDevice device);
-
-		void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
-			VkBuffer& buffer, VkDeviceMemory& bufferMemory, VkDevice device, VkPhysicalDevice physicalDevice);
-		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size, VkDevice device, VkQueue graphicsQueue);
-		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties, VkPhysicalDevice physicalDevice);
-		// Vertex 
-		void createVertexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue);
-		// Instance
-		void createInstanceBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue);
-		void updateInstanceBuffer(VkDevice device, int instanceID, InstanceParams param);
-		// Index
-		void createIndexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue graphicsQueue);
 
 		void createDescriptorSetLayout(VkDevice device);
 		void createUniformBuffers(VkDevice device, VkPhysicalDevice physicalDevice);
@@ -124,15 +110,6 @@ namespace Engine {
 		VkDescriptorPool descriptorPool;
 		std::vector<VkDescriptorSet> descriptorSets;
 
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
-
-		VkBuffer instanceBuffer;
-		VkDeviceMemory instanceBufferMemory;
-
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
-
 		std::vector<VkBuffer> uniformBuffers;
 		std::vector<VkDeviceMemory> uniformBuffersMemory;
 		std::vector<void*> uniformBuffersMapped;
@@ -146,24 +123,8 @@ namespace Engine {
 		VkDeviceMemory depthImageMemory;
 		VkImageView depthImageView;
 
-		void showImGuiOptions(VkDevice device, unsigned int cmdBufferIndex, float engine_time);
-
 		UniformBufferObject ubo;
 
-		Scene m_scene;
-
-		glm::vec3 m_translation = glm::vec3(0.0);
-		glm::vec3 m_rotation = glm::vec3(1.0);
-		float m_rotationAlpha = 0.0;
-		glm::vec3 m_scale = glm::vec3(1.0);
-
-		float m_time = 0.0;
-
-		void Tree(VkDevice device, int maxDepth);
-		void RecursiveTree(std::vector<Instance>& parts, int maxDepth, int depth, Instance parent);
-
-		int m_maxDepth = 0;
-		float m_angL = 25;
-		float m_angR = -35;
+		SceneTranslator m_sceneTranslator;
 	};
 }

@@ -75,8 +75,8 @@ namespace Engine {
 		info.MSAASamples = VK_SAMPLE_COUNT_1_BIT;
 		ImGui_ImplVulkan_Init(&info);
 
-		VkCommandBuffer commandBuffer = enginePipeline.beginSingleTimeCommands(engineInstance.GetEngineDevice().GetDevice());
-		enginePipeline.endSingleTimeCommands(engineInstance.GetEngineDevice().GetDevice(), engineInstance.GetEngineDevice().GetGraphicsQueue(), commandBuffer);
+		VkCommandBuffer commandBuffer = beginSingleTimeCommands(engineInstance.GetEngineDevice().GetDevice(), enginePipeline.GetCommandPool());
+		endSingleTimeCommands(engineInstance.GetEngineDevice().GetDevice(), enginePipeline.GetCommandPool(), engineInstance.GetEngineDevice().GetGraphicsQueue(), commandBuffer);
 
 		vkDeviceWaitIdle(engineInstance.GetEngineDevice().GetDevice());
 	}
@@ -130,8 +130,8 @@ namespace Engine {
 
 		//std::cout << time << std::endl;
 		enginePipeline.updateUniformBuffer(crrntFrame, engineInstance.GetEngineSwapchain().GetExtent(), engine_time, xpos, ypos);
-		enginePipeline.updateCam(engine_time);
-		enginePipeline.selectInstance(engineInstance.GetEngineDevice().GetDevice(), WIDTH, HEIGHT);
+		enginePipeline.GetSceneTranslator().updateCam(engine_time);
+		enginePipeline.GetSceneTranslator().selectInstance(engineInstance.GetEngineDevice().GetDevice(), enginePipeline.GetUBO(), WIDTH, HEIGHT);
 		enginePipeline.recordCommandBuffer(crrntFrame, imageIndex, engineInstance.GetEngineSwapchain().GetExtent(), crrntFrame, engineInstance.GetEngineDevice().GetDevice(), engine_time);
 
 		vkResetFences(engineInstance.GetEngineDevice().GetDevice(), 1, enginePipeline.GetFence(crrntFrame));
